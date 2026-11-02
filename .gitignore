@@ -1,0 +1,11 @@
+__pycache__/
+.ipynb_checkpoints/
+.env
+.venv/
+data/
+runs/
+*.pt
+*.pth
+*.npz
+*.mp4
+*.task

@@ -1,0 +1,4 @@
+factor,main_effect,sd_across_seeds,source
+interpolation,0.0359,0.0212,Thesis Table 4.10
+normalization,0.2554,0.015,Thesis Table 4.10
+augmentation,0.0533,0.0063,Thesis Table 4.10

@@ -1,0 +1,4 @@
+Dua notebook: sintaks sel kode diperiksa dan berkas identik dengan sumber asli.
+Perhitungan rekap seed konsisten dalam toleransi 0,0001.
+Tautan relatif dokumentasi diperiksa.
+Pelatihan model dan eksekusi notebook penuh belum dilakukan.

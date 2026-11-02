@@ -1,0 +1,12 @@
+# Main dependencies for the submitted notebooks.
+# Exact runtime versions are recorded automatically to environment JSON files.
+numpy
+pandas
+scipy
+scikit-learn
+torch
+tqdm
+matplotlib
+mediapipe
+opencv-python
+PyYAML
