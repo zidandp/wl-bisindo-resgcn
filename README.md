@@ -15,7 +15,7 @@ Saya menggunakan ResGCN dengan acuan arsitektur SIGNGRAPH, lalu membandingkan de
 - Mengimplementasikan dan melatih ResGCN dengan acuan SIGNGRAPH dari Naz dkk. (2023).
 - Menyusun eksperimen faktorial dan evaluasi Leave-One-Signer-Out (LOSO), menjalankan pengulangan dengan tiga seed, serta menganalisis hasil dan pola kesalahan.
 
-**Perangkat:** Python, PyTorch, MediaPipe Tasks, OpenCV, NumPy, pandas, SciPy, scikit-learn, Matplotlib, dan Google Colab.
+**Tools:** Python, PyTorch, MediaPipe Tasks, OpenCV, NumPy, pandas, SciPy, scikit-learn, Matplotlib, dan Google Colab.
 
 ## Rancangan eksperimen
 
@@ -47,7 +47,7 @@ Signer 0 tetap berada dalam kelompok kandidat data latih karena cakupan kelasnya
 | E6 | Tidak | Ya | Ya | 70,77 ± 1,67 | 68,12 |
 | E7 | Ya | Ya | Ya | **74,53 ± 2,89** | **72,68** |
 
-Sumber: Tabel 4.8–4.9 skripsi final. Untuk setiap seed, akurasi dirata-ratakan pada empat fold LOSO. Rata-rata dan simpangan baku (SD) pada tabel kemudian dihitung dari tiga nilai tersebut. SD ini menunjukkan variasi antar-pengulangan, bukan antar-signer atau interval kepercayaan.
+Untuk setiap seed, akurasi dirata-ratakan pada empat fold LOSO. Rata-rata dan simpangan baku (SD) pada tabel kemudian dihitung dari tiga nilai tersebut. SD ini menunjukkan variasi antar-pengulangan, bukan antar-signer atau interval kepercayaan.
 
 Kombinasi lengkap E7 menghasilkan akurasi rata-rata tertinggi, naik **34,58 poin persentase** dari E0. Pembandingnya adalah baseline internal penelitian ini, bukan hasil model pada paper dataset.
 
