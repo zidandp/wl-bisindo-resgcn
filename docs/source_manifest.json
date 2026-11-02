@@ -1,10 +1,12 @@
 {
   "02_resgcn_loso_e0_e7.ipynb": {
-    "sha256": "1f9d377a9a5b06a1d0f40a6ab2736b4fb81b79948bf4c5147e9ffb9b12168b65",
-    "status": "salinan tidak diubah"
+    "source_sha256": "1f9d377a9a5b06a1d0f40a6ab2736b4fb81b79948bf4c5147e9ffb9b12168b65",
+    "package_sha256": "01e8a970c29f39e63d731aab33eff9b87f9335fb5cf8352e223bc3d61cfc7a9c",
+    "changes": "Konfigurasi workspace dan dokumentasi; ekstraksi juga mendukung inventaris otomatis dan subfolder video."
   },
   "01_pose_extraction.ipynb": {
-    "sha256": "8ce898b834725787fe8452cf0d76beeb03f89c070099c2c7f88f9ec8d6d0ae55",
-    "status": "salinan tidak diubah"
+    "source_sha256": "8ce898b834725787fe8452cf0d76beeb03f89c070099c2c7f88f9ec8d6d0ae55",
+    "package_sha256": "b7ebc5254291f9e7273da6e043f7680895f778a19a3a765cda987f1c8f3804ec",
+    "changes": "Konfigurasi workspace dan dokumentasi; ekstraksi juga mendukung inventaris otomatis dan subfolder video."
   }
 }

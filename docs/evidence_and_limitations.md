@@ -1,28 +1,33 @@
-# Sumber hasil dan keterbatasan
+# Pembacaan hasil dan keterbatasan
 
-## Sumber angka
+## Rekap eksperimen
 
-Hasil dalam repository mengikuti skripsi final. Slide sidang masih memuat hasil satu seed, termasuk E7 sebesar 73,09% dan hand-anchor sekitar 78,8%, sehingga tidak digunakan sebagai ringkasan hasil tiga seed.
-
-| Informasi | Lokasi dalam skripsi final |
+| Berkas | Isi |
 |---|---|
-| 96 proses pelatihan, empat fold, tiga seed | Bagian 4.4, halaman tercetak 68–69 |
-| Top-1 E0–E7, SD, dan nilai tiap seed | Tabel 4.8, halaman tercetak 69 / halaman PDF 84 |
-| Precision, recall, dan F1 tertimbang | Tabel 4.9 |
-| Main effect | Tabel 4.10 |
-| Hasil E7 per signer dan hand-anchor | Tabel 4.13 |
-| Kesimpulan | Bab V, halaman tercetak 96–98 |
+| [`main_results.csv`](../results/main_results.csv) | Konfigurasi E0–E7, akurasi per seed, rata-rata, SD, dan F1 tertimbang |
+| [`main_effects.csv`](../results/main_effects.csv) | Efek utama interpolasi, normalisasi, dan augmentasi |
+| [`e7_signer_results.csv`](../results/e7_signer_results.csv) | Akurasi E7 pada setiap signer uji |
 
-Berkas `results/*.csv` merupakan salinan tabel agregat skripsi, bukan log mentah hasil pelatihan. Perhitungan ulang dari angka yang telah dibulatkan dapat menghasilkan selisih kecil.
+CSV tersebut berisi rekap tabel hasil eksperimen. Prediksi, checkpoint, dan log per-run belum disertakan. Angka yang sudah dibulatkan dapat menimbulkan selisih kecil ketika dihitung ulang.
+
+## Cara membaca metrik
+
+Untuk setiap seed, skor merupakan rata-rata tanpa pembobotan dari empat fold LOSO. Rata-rata akhir dan simpangan baku sampel (SD) dihitung dari tiga skor seed. Setiap signer uji memiliki bobot sama meskipun jumlah videonya berbeda; skor ini bukan akurasi dari penggabungan seluruh prediksi uji. F1 tertimbang memperhitungkan jumlah contoh tiap kelas di dalam fold, lalu dirata-ratakan antar-fold.
+
+SD menggambarkan variasi antar-pengulangan. Seed juga mengubah pembagian validasi internal, sehingga variasi ini tidak hanya berasal dari inisialisasi model. SD bukan ukuran variasi antar-signer, interval kepercayaan, atau bukti signifikansi statistik.
+
+Peningkatan E7 terhadap E0 sebesar 34,58 poin persentase menggunakan baseline internal dengan protokol yang sama. Nilai ini tidak menyatakan keunggulan terhadap metode pada publikasi lain.
+
+Main effect adalah rata-rata selisih skor ketika suatu faktor aktif dan nonaktif pada kombinasi faktor lain. Nilai main effect tidak dapat dijumlahkan langsung untuk memprediksi peningkatan E0 ke E7 karena perlakuan dapat berinteraksi.
 
 ## Ruang lingkup kesimpulan
 
-Eksperimen menunjukkan manfaat normalisasi spasial pada konfigurasi ResGCN dan evaluasi WL-BISINDO yang digunakan. Pengujian belum mencakup semua pengguna BISINDO, isyarat kontinu, varian regional lain, kondisi kamera baru, maupun dataset lain.
+Normalisasi spasial memberikan main effect terbesar pada arsitektur dan protokol WL-BISINDO yang diuji. Hasil belum mencakup semua pengguna BISINDO, isyarat kontinu, varian regional lain, kondisi kamera baru, maupun dataset lain.
 
-Delapan konfigurasi dibandingkan pada empat signer uji yang sama. Konfigurasi terbaik ditentukan setelah hasil perbandingan diperoleh; belum ada set uji eksternal independen untuk mengonfirmasi pilihan tersebut. Pengujian lanjutan yang didorong analisis kesalahan bersifat eksploratif. SD yang dilaporkan bukan hasil uji signifikansi statistik.
+Delapan konfigurasi dibandingkan pada empat signer uji yang sama. E7 dipilih berdasarkan hasil perbandingan tersebut; belum ada set uji eksternal independen untuk mengonfirmasi pilihan ini. Hand-anchor dan CLAHE merupakan pengujian eksploratif setelah analisis kesalahan, sehingga bukan validasi independen atas konfigurasi terpilih.
 
-Performa signer 3 yang lebih rendah belum memiliki satu penjelasan kausal yang terbukti. Jumlah keypoint hilang, karakteristik gerakan, dan representasi pose perlu diperiksa bersama.
+Performa signer 3 yang lebih rendah belum memiliki satu penjelasan kausal yang terbukti. Jumlah keypoint hilang saja belum cukup menjelaskannya. Kualitas ekstraksi, karakteristik gerakan, dan representasi pose perlu diperiksa bersama; hasil ini tidak membuktikan bahwa dataset keliru.
 
-## Berkas publik
+## Reproduksi
 
-Repository menyertakan kode dan dokumentasi penelitian tanpa PDF skripsi bertanda tangan, slide sidang, video dataset, atau isi Drive pribadi. Notebook dan panduan sumber asli dipertahankan. Atribusi metode tersedia di [referensi](references.md); kebutuhan menjalankan kode tersedia di [panduan reproduksi](methods_and_reproduction.md).
+Notebook menyediakan konfigurasi lokasi input dan output untuk pengguna. Pelatihan penuh belum dijalankan ulang pada versi notebook ini. Kebutuhan data, lingkungan, dan artefak yang belum tersedia dijelaskan dalam [panduan menjalankan](methods_and_reproduction.md).

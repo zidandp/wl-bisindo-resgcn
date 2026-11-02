@@ -1,12 +1,12 @@
 # Referensi dan kaitannya dengan implementasi
 
-Pemetaan ini mengikuti kajian pustaka, metode, dan daftar pustaka skripsi. Rujukan ilmiah dibedakan dari sumber kode. Rincian bibliografi mengikuti skripsi; belum seluruh publikasi asli diperiksa ulang untuk paket ini.
+Referensi berikut menjelaskan dasar arsitektur, pilihan preprocessing, dan rancangan evaluasi. Peran setiap rujukan dicantumkan agar hubungannya dengan implementasi dapat ditelusuri.
 
 ## Arsitektur
 
 N. Naz, H. Sajid, S. Ali, O. Hasan and M. K. Ehsan. 2023. **Signgraph: An Efficient and Accurate Pose-Based Graph Convolution Approach Toward Sign Language Recognition.** IEEE Access, 11, 19135–19147. https://doi.org/10.1109/ACCESS.2023.3247761
 
-SIGNGRAPH menjadi acuan arsitektur implementasi `ResGCN_N39_R4`. Bagian 3.3.7 skripsi menyatakan bahwa source code asli SIGNGRAPH tidak digunakan secara langsung. Model memuat graph convolution spasial, convolution temporal, residual connection, dan blok bottleneck.
+SIGNGRAPH menjadi acuan arsitektur implementasi `ResGCN_N39_R4`. Implementasi ini tidak menggunakan source code asli SIGNGRAPH secara langsung. Model memuat graph convolution spasial, convolution temporal, residual connection, dan blok bottleneck.
 
 ## Preprocessing
 
@@ -23,7 +23,7 @@ Sumber dataset: https://www.kaggle.com/datasets/glennleonali/wl-bisindo
 
 ## Landasan model graf
 
-- **Song, Y.-F., Zhang, Z., Shan, C., & Wang, L. (2020).** Stronger, Faster and More Explainable: A Graph Convolutional Baseline for Skeleton-based Action Recognition. ACM Multimedia, 1625–1633. https://doi.org/10.1145/3394171.3413802 — Landasan ResGCN yang dibahas bersama SIGNGRAPH pada bagian 2.4.3.
+- **Song, Y.-F., Zhang, Z., Shan, C., & Wang, L. (2020).** Stronger, Faster and More Explainable: A Graph Convolutional Baseline for Skeleton-based Action Recognition. ACM Multimedia, 1625–1633. https://doi.org/10.1145/3394171.3413802 — Landasan ResGCN yang digunakan sebagai acuan bersama SIGNGRAPH.
 
 - **Yan, S., Xiong, Y., & Lin, D. (2018).** Spatial Temporal Graph Convolutional Networks for Skeleton-Based Action Recognition. AAAI, 32(1). https://doi.org/10.1609/aaai.v32i1.12328 — Landasan ST-GCN dalam kajian model graf.
 
@@ -39,9 +39,9 @@ Sumber dataset: https://www.kaggle.com/datasets/glennleonali/wl-bisindo
 
 - **Bohacek, M., & Hruz, M. (2022).** Sign Pose-based Transformer for Word-level Sign Language Recognition. WACVW, 182–191. https://doi.org/10.1109/WACVW54805.2022.00024 — SPOTER; konteks normalisasi dan preprocessing pose.
 
-- **De Coster, M., Van Herreweghe, M., & Dambre, J. (2020).** Sign Language Recognition with Transformer Networks. — Konteks preprocessing dan augmentasi. Detail venue tidak lengkap dalam daftar pustaka skripsi.
+- **De Coster, M., Van Herreweghe, M., & Dambre, J. (2020).** Sign Language Recognition with Transformer Networks. — Konteks preprocessing dan augmentasi.
 
-- **Akdag, A., & Baykan, O. K. (2024).** Isolated sign language recognition through integrating pose data and motion history images. PeerJ Computer Science, 10. https://doi.org/10.7717/PEERJ-CS.2054 — Metode berbasis pose yang dibahas dalam sintesis pada halaman 35.
+- **Akdag, A., & Baykan, O. K. (2024).** Isolated sign language recognition through integrating pose data and motion history images. PeerJ Computer Science, 10. https://doi.org/10.7717/PEERJ-CS.2054 — Studi pembanding pengenalan isyarat berbasis pose dan riwayat gerakan.
 
 - **Purbojo, T., & Wijaya, A. P. (2025).** Enhancing Pose-Based Sign Language Recognition: A Comparative Study of Preprocessing Strategies with GRU and LSTM. Advance Sustainable Science, Engineering and Technology, 7(2). https://doi.org/10.26877/asset.v7i2.1658 — Studi pembanding untuk menguji kembali preprocessing pada arsitektur berbeda.
 
@@ -60,11 +60,9 @@ Sumber dataset: https://www.kaggle.com/datasets/glennleonali/wl-bisindo
 
 - **Sokolova, M., & Lapalme, G. (2009).** A systematic analysis of performance measures for classification tasks. Information Processing & Management, 45(4), 427–437. https://doi.org/10.1016/j.ipm.2009.03.002 — Interpretasi metrik klasifikasi.
 
-- **Powers, D. M. W. (2020).** Evaluation: from precision, recall and F-measure to ROC, informedness, markedness and correlation. — Rujukan evaluasi sebagaimana tercantum dalam skripsi.
+- **Powers, D. M. W. (2020).** Evaluation: from precision, recall and F-measure to ROC, informedness, markedness and correlation. — Rujukan interpretasi metrik evaluasi.
 
 
 ## Batas atribusi
 
-Halaman 34–35 skripsi menjelaskan bahwa pemilihan preprocessing mempertimbangkan beberapa studi, bukan mengadopsi satu pipeline secara utuh. Daftar di atas mencakup acuan metode, teori, serta pembanding; tidak berarti semua algoritma yang disebut diimplementasikan dalam penelitian.
-
-Untuk SPOTER digunakan entri konferensi tahun 2022 yang lengkap. Entri duplikat tanpa tahun dengan tautan yang tidak sesuai pada daftar pustaka skripsi tidak disertakan kembali.
+Pemilihan preprocessing mempertimbangkan beberapa studi. Implementasi utama menggunakan interpolasi linear, normalisasi pusat tubuh, rotasi, dan jitter sebagaimana dijelaskan dalam [metode](methods_and_reproduction.md). Referensi lain memberikan landasan teori atau pembanding; algoritmanya tidak seluruhnya diterapkan.
