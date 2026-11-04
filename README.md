@@ -2,91 +2,131 @@
 
 **Zidan Dwi Permana · Rekayasa Perangkat Lunak · Universitas Pendidikan Indonesia · 2026**
 
-Penelitian ini menguji pengaruh interpolasi, normalisasi spasial, dan augmentasi pose terhadap pengenalan kata BISINDO dari orang yang tidak dilibatkan dalam pelatihan (*signer-independent*).
+Penelitian skripsi tentang pengenalan kata Bahasa Isyarat Indonesia (BISINDO) dari video RGB berbasis **estimasi pose** dan **skeleton-based recognition**. Penelitian ini menguji pengaruh tiga teknik preprocessing pose, yaitu interpolasi, normalisasi spasial, dan augmentasi, terhadap akurasi dan konsistensi model ResGCN. Pengujian dilakukan pada orang yang datanya tidak dipakai saat pelatihan (*signer-independent*).
 
-Saya menggunakan ResGCN dengan acuan arsitektur SIGNGRAPH, lalu membandingkan delapan kombinasi preprocessing pada dataset WL-BISINDO. Fokus penelitian adalah kontribusi setiap perlakuan dan perbedaan performa antar-signer.
+[Metode & cara menjalankan](docs/methods_and_reproduction.md) · [Hasil & keterbatasan](docs/evidence_and_limitations.md) · [Referensi](docs/references.md) · [Dataset](https://www.kaggle.com/datasets/glennleonali/wl-bisindo)
 
-[Metode dan cara menjalankan](docs/methods_and_reproduction.md) · [Sumber hasil dan keterbatasan](docs/evidence_and_limitations.md) · [Referensi](docs/references.md) · [Dataset](https://www.kaggle.com/datasets/glennleonali/wl-bisindo)
+## Ringkasan
 
-## Pekerjaan yang saya lakukan
+- **Pipeline lengkap dari video sampai evaluasi:** pembacaan frame (OpenCV), ekstraksi 65 keypoint 2D (MediaPipe), pemeriksaan kualitas pose, preprocessing, pelatihan ResGCN (PyTorch), dan analisis kesalahan.
+- **Desain eksperimen faktorial 2³:** 8 konfigurasi × 4 fold Leave-One-Signer-Out (LOSO) × 3 seed = 96 proses pelatihan utama.
+- **Hasil:** akurasi top-1 rata-rata naik dari **39,95%** (tanpa preprocessing) menjadi **74,53% ± 2,89** (ketiga teknik digabung). Normalisasi spasial memberikan pengaruh terbesar.
+- **Keterbatasan:** hasil hanya berlaku untuk dataset dan protokol yang diuji; lihat [ruang lingkup](#ruang-lingkup).
 
-- Mengimplementasikan ekstraksi pose dari video menggunakan MediaPipe Pose Landmarker dan Hand Landmarker.
-- Menyiapkan interpolasi keypoint yang hilang, normalisasi koordinat, standardisasi panjang sekuens, dan augmentasi data latih.
-- Mengimplementasikan dan melatih ResGCN dengan acuan SIGNGRAPH dari Naz dkk. (2023).
-- Menyusun eksperimen faktorial dan evaluasi Leave-One-Signer-Out (LOSO), menjalankan pengulangan dengan tiga seed, serta menganalisis hasil dan pola kesalahan.
+## Alur penelitian
 
-**Perangkat:** Python, PyTorch, MediaPipe Tasks, OpenCV, NumPy, pandas, SciPy, scikit-learn, Matplotlib, dan Google Colab.
+```mermaid
+flowchart LR
+    A["Video RGB<br/>WL-BISINDO"] --> B["Ekstraksi pose<br/>MediaPipe<br/>65 keypoint 2D"]
+    B --> C["Pemeriksaan<br/>kualitas pose"]
+    C --> D["Preprocessing<br/>E0–E7"]
+    D --> E["Standardisasi<br/>64 frame"]
+    E --> F["ResGCN<br/>PyTorch"]
+    F --> G["Evaluasi LOSO<br/>3 seed"]
+    G --> H["Analisis<br/>antar-signer & kesalahan"]
+```
+
+| Tahap | Pekerjaan |
+|---|---|
+| Ekstraksi pose | Membaca frame dengan OpenCV (BGR → RGB), lalu mengekstraksi landmark tubuh dan tangan dengan MediaPipe Pose Landmarker dan Hand Landmarker. |
+| Pemeriksaan kualitas | Menganalisis panjang sekuens dan proporsi keypoint yang tidak terdeteksi per bagian tubuh dan per signer. |
+| Preprocessing | Interpolasi linear untuk keypoint yang hilang, normalisasi posisi dan skala tubuh, augmentasi rotasi dan jitter pada data latih. |
+| Model | ResGCN (`ResGCN_N39_R4`) dengan acuan arsitektur SIGNGRAPH; 460.276 parameter (dilaporkan di skripsi). |
+| Evaluasi | Top-1 accuracy, precision, recall, F1, dan confusion matrix; perbandingan antar-signer dan antar-pengulangan. |
+
+**Tools:** Python, PyTorch, OpenCV, MediaPipe Tasks, NumPy, SciPy, pandas, scikit-learn, Matplotlib.
+**Lingkungan:** Google Colab dengan GPU NVIDIA Tesla T4, Google Drive untuk penyimpanan artefak.
 
 ## Rancangan eksperimen
 
 | Komponen | Pengaturan |
 |---|---|
 | Dataset | WL-BISINDO: 1.600 video RGB, 32 kelas kata, 5 signer |
-| Representasi | 65 keypoint dua dimensi; masukan model `(2, 64, 65)` |
-| Model | `ResGCN_N39_R4` |
-| Faktor yang diuji | Interpolasi linear, normalisasi spasial, dan augmentasi |
-| Desain | Faktorial 2³: delapan konfigurasi E0–E7 |
-| Evaluasi | Empat fold LOSO; signer 1–4 bergantian menjadi data uji |
-| Validasi internal | 15% kandidat data latih, distratifikasi berdasarkan label |
-| Pengulangan | Seed 42, 123, dan 456; total 96 proses pelatihan utama |
+| Input model | 65 keypoint 2D, tensor `(2, 64, 65)` |
+| Faktor | Interpolasi linear, normalisasi spasial, augmentasi (masing-masing aktif/nonaktif) |
+| Konfigurasi | E0–E7 (semua kombinasi faktor) |
+| Evaluasi | LOSO 4 fold: signer 1–4 bergantian menjadi data uji |
+| Validasi internal | 15% dari kandidat data latih, distratifikasi berdasarkan label |
+| Pengulangan | Seed 42, 123, 456 |
 
-Signer 0 tetap berada dalam kelompok kandidat data latih karena cakupan kelasnya tidak lengkap. Signer yang menjadi data uji tidak digunakan pada pelatihan maupun validasi internal. Semua konfigurasi memakai standardisasi temporal menjadi 64 frame, arsitektur, dan pengaturan pelatihan yang sama. Augmentasi hanya diterapkan pada data latih.
+Catatan protokol:
+- Signer uji tidak dipakai untuk pelatihan maupun validasi.
+- Signer 0 tidak pernah menjadi data uji karena cakupan kelasnya tidak lengkap; datanya selalu masuk kelompok kandidat data latih.
+- Semua konfigurasi memakai arsitektur, hyperparameter, dan standardisasi 64 frame yang sama. Augmentasi hanya diterapkan pada data latih.
 
 ## Hasil utama
 
 ![Perbandingan akurasi delapan konfigurasi preprocessing](assets/accuracy.png)
 
-| Konfigurasi | Interpolasi | Normalisasi | Augmentasi | Top-1 rata-rata ± SD (%) | F1 tertimbang (%) |
-|---|---|---|---|---:|---:|
-| E0 | Tidak | Tidak | Tidak | 39,95 ± 1,22 | 36,22 |
-| E1 | Ya | Tidak | Tidak | 43,61 ± 1,31 | 39,87 |
-| E2 | Tidak | Ya | Tidak | 66,29 ± 1,72 | 63,61 |
-| E3 | Tidak | Tidak | Ya | 43,28 ± 2,54 | 39,25 |
-| E4 | Ya | Ya | Tidak | 66,96 ± 4,00 | 63,52 |
-| E5 | Ya | Tidak | Ya | 49,55 ± 2,86 | 45,52 |
-| E6 | Tidak | Ya | Ya | 70,77 ± 1,67 | 68,12 |
-| E7 | Ya | Ya | Ya | **74,53 ± 2,89** | **72,68** |
+| Konfigurasi | Interpolasi | Normalisasi | Augmentasi | Top-1 ± SD (%) | F1 tertimbang (%) |
+|---|:---:|:---:|:---:|---:|---:|
+| E0 | – | – | – | 39,95 ± 1,22 | 36,22 |
+| E1 | ✓ | – | – | 43,61 ± 1,31 | 39,87 |
+| E2 | – | ✓ | – | 66,29 ± 1,72 | 63,61 |
+| E3 | – | – | ✓ | 43,28 ± 2,54 | 39,25 |
+| E4 | ✓ | ✓ | – | 66,96 ± 4,00 | 63,52 |
+| E5 | ✓ | – | ✓ | 49,55 ± 2,86 | 45,52 |
+| E6 | – | ✓ | ✓ | 70,77 ± 1,67 | 68,12 |
+| E7 | ✓ | ✓ | ✓ | **74,53 ± 2,89** | **72,68** |
 
-Rekap hasil tersedia di [`results/main_results.csv`](results/main_results.csv). Untuk setiap seed, metrik dirata-ratakan tanpa pembobotan pada empat fold LOSO. Setiap signer uji memiliki bobot yang sama, sehingga nilai ini berbeda dari akurasi gabungan seluruh video uji. Rata-rata dan simpangan baku (SD) pada tabel kemudian dihitung dari tiga nilai tersebut. SD ini menunjukkan variasi antar-pengulangan, bukan antar-signer atau interval kepercayaan.
+Cara membaca tabel:
+- Untuk setiap seed, skor adalah rata-rata empat fold LOSO dengan bobot sama per signer. Nilai pada tabel adalah rata-rata dan SD dari tiga skor seed tersebut.
+- **SD = variasi antar-pengulangan**, bukan variasi antar-signer atau interval kepercayaan.
+- Data lengkap: [`results/main_results.csv`](results/main_results.csv).
 
-Kombinasi lengkap E7 menghasilkan akurasi rata-rata tertinggi, naik **34,58 poin persentase** dari E0. Pembandingnya adalah baseline internal penelitian ini, bukan hasil model pada paper dataset.
-
-Normalisasi memberikan *main effect* terbesar, yaitu **25,54 poin persentase**, diikuti augmentasi 5,33 dan interpolasi 3,59. Main effect dihitung sebagai selisih rata-rata hasil saat suatu faktor aktif dan nonaktif; nilainya tidak dapat langsung dijumlahkan sebagai peningkatan gabungan.
-
-E6 memiliki SD antar-pengulangan lebih kecil daripada E7, tetapi akurasi rata-ratanya lebih rendah. Hasil ini menunjukkan bahwa konfigurasi dengan akurasi tertinggi belum tentu paling konsisten antar-pengulangan.
+Temuan:
+1. **E7 tertinggi**: naik 34,58 poin persentase dari E0. Pembandingnya adalah baseline internal dengan protokol yang sama, bukan hasil dari paper lain.
+2. **Main effect normalisasi paling besar**: 25,54 poin persentase, diikuti augmentasi (5,33) dan interpolasi (3,59). Main effect tidak bisa dijumlahkan karena faktor-faktornya dapat berinteraksi. Data: [`results/main_effects.csv`](results/main_effects.csv).
+3. **Akurasi tertinggi belum tentu paling konsisten**: SD E6 (1,67) lebih kecil daripada E7 (2,89), walaupun rata-rata E6 lebih rendah.
 
 ## Analisis antar-signer
 
 ![Performa E7 pada setiap signer uji](assets/signers.png)
 
-Pada E7, rata-rata akurasi signer 1–4 adalah 86,27%, 88,41%, 47,60%, dan 75,83%. Signer 3 masih menjadi kasus yang sulit meskipun akurasi keseluruhan meningkat.
+| Signer uji | Top-1 E7 ± SD antar-seed (%) |
+|---|---:|
+| 1 | 86,27 ± 2,13 |
+| 2 | 88,41 ± 2,08 |
+| 3 | 47,60 ± 10,31 |
+| 4 | 75,83 ± 2,08 |
 
-Pemeriksaan kualitas pose dan pola kesalahan menunjukkan bahwa jumlah keypoint yang hilang saja belum menjelaskan perbedaan tersebut. Karakteristik gerakan dan representasi pose perlu diteliti lebih lanjut; hasil ini belum menetapkan satu penyebab utama rendahnya performa signer 3.
+Signer 3 jauh lebih sulit dan hasilnya paling tidak stabil. Jumlah keypoint yang hilang saja belum menjelaskan perbedaan ini. Penyebab pastinya **belum diketahui**: kualitas ekstraksi, karakteristik gerakan, dan representasi pose masih perlu diteliti. Data: [`results/e7_signer_results.csv`](results/e7_signer_results.csv).
 
-## Pengujian tambahan
+## Ruang lingkup
 
-Pengujian eksploratif *hand-anchor normalization* di atas E7 dengan akurasi rata-rata **77,48% ± 1,17 poin persentase** pada tiga seed. Performa signer 3 meningkat secara rata-rata, sedangkan signer 4 menurun. 
+| Dicakup penelitian ini | Belum dicakup / belum diuji |
+|---|---|
+| Ekstraksi pose 2D dari video RGB dengan model pralatih MediaPipe | Fusi RGB-D atau data kedalaman |
+| Klasifikasi kata isyarat terisolasi berbasis sekuens pose | Isyarat kontinu (kalimat) |
+| Evaluasi signer-independent pada 4 signer uji WL-BISINDO | Dataset lain, varian regional, kondisi kamera berbeda |
+| Perbandingan preprocessing dengan desain faktorial | Uji signifikansi statistik dan set uji eksternal |
+| Jumlah parameter model | Benchmark latensi, FPS, atau FLOPs |
+| Notebook penelitian | Aplikasi atau prototipe real-time |
 
-Pengujian tersebut berada di luar rancangan utama E0–E7 dan dilakukan sebagai tindak lanjut analisis kesalahan. Kode serta log pengujian tambahan belum tersedia dalam repository ini.
+Detail keterbatasan: [hasil & keterbatasan](docs/evidence_and_limitations.md).
 
 ## Isi repository
 
-- [`notebooks/01_pose_extraction.ipynb`](notebooks/01_pose_extraction.ipynb): ekstraksi landmark dan pemeriksaan kualitas pose.
-- [`notebooks/02_resgcn_loso_e0_e7.ipynb`](notebooks/02_resgcn_loso_e0_e7.ipynb): preprocessing, pembagian LOSO, model, pelatihan, dan evaluasi.
-- [`results/main_results.csv`](results/main_results.csv): rekap hasil eksperimen E0–E7.
-- [`scripts/plot_reported_results.py`](scripts/plot_reported_results.py): pembuatan grafik dari rekap CSV.
-- [`docs/methods_and_reproduction.md`](docs/methods_and_reproduction.md): pengaturan dan kebutuhan untuk menjalankan notebook.
+| Berkas | Isi |
+|---|---|
+| [`notebooks/01_pose_extraction.ipynb`](notebooks/01_pose_extraction.ipynb) | Inventaris video, ekstraksi landmark, laporan kualitas pose |
+| [`notebooks/02_resgcn_loso_e0_e7.ipynb`](notebooks/02_resgcn_loso_e0_e7.ipynb) | Preprocessing, pembagian LOSO, model, pelatihan, evaluasi |
+| [`results/`](results/) | Rekap hasil E0–E7, main effect, dan hasil per signer |
+| [`scripts/plot_reported_results.py`](scripts/plot_reported_results.py) | Pembuatan grafik dari CSV hasil |
+| [`docs/`](docs/) | Metode, keterbatasan, referensi |
 
-Notebook disesuaikan agar lokasi input/output dapat ditentukan pengguna. Inventaris metadata dapat dibuat dari video pada notebook ekstraksi. Video, metadata historis, cache pose, checkpoint, log per-run, dan catatan versi lingkungan asli belum disertakan. Pipeline pelatihan belum dijalankan ulang untuk memverifikasi reproduksi hasil dalam paket ini. Detailnya ada pada [catatan reproduksi](docs/methods_and_reproduction.md).
+> [!IMPORTANT]
+> Angka di repository ini adalah rekap dari skripsi. Video, cache pose, checkpoint, log per-run, dan catatan lingkungan asli **tidak disertakan**. Notebook sudah disesuaikan agar lokasi input/output bisa diatur, tetapi **pelatihan belum dijalankan ulang** dengan versi notebook ini. Lihat [catatan reproduksi](docs/methods_and_reproduction.md#ketersediaan-berkas).
 
 ## Referensi metode
 
-Arsitektur mengacu pada **SIGNGRAPH, Naz dkk. (2023)**, dengan landasan ResGCN dan ST-GCN yang dibahas melalui Song dkk. (2020) serta Yan dkk. (2018). Implementasi ini tidak menggunakan source code asli SIGNGRAPH secara langsung.
+- **Arsitektur:** SIGNGRAPH (Naz dkk., 2023), dengan landasan ResGCN (Song dkk., 2020) dan ST-GCN (Yan dkk., 2018). Implementasi ditulis ulang, tidak memakai source code asli SIGNGRAPH.
+- **Preprocessing:** mempertimbangkan Roh dkk. (2024), Boháček & Hrúz (2022), De Coster dkk. (2020), Akdağ & Baykan (2024), Purbojo & Wijaya (2025), dan Jiang dkk. (2021). Implementasi utama hanya memakai interpolasi linear dan normalisasi pusat tubuh.
 
-Pemilihan preprocessing mempertimbangkan Roh dkk. (2024), Boháček dan Hrúz (2022), De Coster dkk. (2020), Akdağ dan Baykan (2024), Purbojo dan Wijaya (2025), serta Jiang dkk. (2021). Implementasi utama memakai interpolasi linear dan normalisasi pusat tubuh sebagaimana dijelaskan dalam notebook. Daftar rujukan beserta perannya tersedia di [referensi](docs/references.md).
+Daftar lengkap beserta peran setiap rujukan: [referensi](docs/references.md).
 
 ## Dataset dan atribusi
 
-Dataset WL-BISINDO diperkenalkan oleh **Grace Oktaviani Kindy, Glenn Leonali, dan Henry Lucky** dalam *Word-Level BISINDO: A Novel Video Indonesian Sign Language Dataset and Baseline Methods*, Procedia Computer Science 269 (2025), 249–258. [DOI](https://doi.org/10.1016/j.procs.2025.08.277) · [Dataset Kaggle](https://www.kaggle.com/datasets/glennleonali/wl-bisindo).
+Dataset WL-BISINDO diperkenalkan oleh **Grace Oktaviani Kindy, Glenn Leonali, dan Henry Lucky** dalam *Word-Level BISINDO: A Novel Video Indonesian Sign Language Dataset and Baseline Methods*, Procedia Computer Science 269 (2025), 249–258. [DOI](https://doi.org/10.1016/j.procs.2025.08.277) · [Kaggle](https://www.kaggle.com/datasets/glennleonali/wl-bisindo)
 
-Panduan kode asli mencantumkan lisensi dataset CC BY-NC 4.0; periksa ketentuan terbaru pada sumber dataset sebelum menggunakannya. Video tidak didistribusikan ulang di sini. Ketentuan penggunaan kode mengikuti berkas `LICENSE` pada repository.
+Panduan kode asli dataset mencantumkan lisensi CC BY-NC 4.0; periksa ketentuan terbaru di sumber dataset. Video tidak didistribusikan ulang di sini. Penggunaan kode mengikuti [`LICENSE`](LICENSE).

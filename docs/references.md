@@ -12,7 +12,7 @@ SIGNGRAPH menjadi acuan arsitektur implementasi `ResGCN_N39_R4`. Implementasi in
 
 Kyunggeun Roh, Huije Lee, Eui Jun Hwang, Sukmin Cho, and Jong C. Park. 2024. **Preprocessing Mediapipe Keypoints with Keypoint Reconstruction and Anchors for Isolated Sign Language Recognition.** Proceedings of the LREC-COLING 2024 11th Workshop on the Representation and Processing of Sign Languages: Evaluation of Sign Language Resources, 323–334. ELRA and ICCL. https://aclanthology.org/2024.signlang-1.36/
 
-Roh dkk. menjadi rujukan rekonstruksi keypoint dan normalisasi berbasis anchor. Pada kode utama penelitian ini, `interpolate_missing_keypoints` menggunakan `np.interp` untuk celah temporal internal, sedangkan `normalize_spatial` menggunakan pusat mid-hip dengan mekanisme pengganti dan skala jarak bahu. Implementasi ini tidak dinyatakan identik dengan seluruh pipeline Roh. Pengujian hand-anchor merupakan eksperimen tambahan terpisah.
+Roh dkk. menjadi rujukan rekonstruksi keypoint dan normalisasi berbasis anchor. Pada kode utama penelitian ini, `interpolate_missing_keypoints` menggunakan `np.interp` untuk celah temporal internal, sedangkan `normalize_spatial` menggunakan pusat mid-hip dengan mekanisme pengganti dan skala jarak bahu. Implementasi ini tidak dinyatakan identik dengan seluruh pipeline Roh.
 
 ## Dataset
 

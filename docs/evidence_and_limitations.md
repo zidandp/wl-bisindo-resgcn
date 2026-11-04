@@ -1,33 +1,49 @@
-# Pembacaan hasil dan keterbatasan
+# Hasil dan keterbatasan
 
-## Rekap eksperimen
+## Sumber angka
 
 | Berkas | Isi |
 |---|---|
-| [`main_results.csv`](../results/main_results.csv) | Konfigurasi E0–E7, akurasi per seed, rata-rata, SD, dan F1 tertimbang |
-| [`main_effects.csv`](../results/main_effects.csv) | Efek utama interpolasi, normalisasi, dan augmentasi |
-| [`e7_signer_results.csv`](../results/e7_signer_results.csv) | Akurasi E7 pada setiap signer uji |
+| [`main_results.csv`](../results/main_results.csv) | Akurasi per seed, rata-rata, SD, dan F1 tertimbang untuk E0–E7 |
+| [`main_effects.csv`](../results/main_effects.csv) | Main effect interpolasi, normalisasi, dan augmentasi |
+| [`e7_signer_results.csv`](../results/e7_signer_results.csv) | Akurasi E7 per signer uji |
 
-CSV tersebut berisi rekap tabel hasil eksperimen. Prediksi, checkpoint, dan log per-run belum disertakan. Angka yang sudah dibulatkan dapat menimbulkan selisih kecil ketika dihitung ulang.
+Semua angka adalah rekap dari tabel skripsi. Prediksi, checkpoint, dan log per-run tidak disertakan. Karena angka sudah dibulatkan, menghitung ulang bisa menghasilkan selisih kecil.
 
 ## Cara membaca metrik
 
-Untuk setiap seed, skor merupakan rata-rata tanpa pembobotan dari empat fold LOSO. Rata-rata akhir dan simpangan baku sampel (SD) dihitung dari tiga skor seed. Setiap signer uji memiliki bobot sama meskipun jumlah videonya berbeda; skor ini bukan akurasi dari penggabungan seluruh prediksi uji. F1 tertimbang memperhitungkan jumlah contoh tiap kelas di dalam fold, lalu dirata-ratakan antar-fold.
+- **Skor per seed:** rata-rata tanpa pembobotan dari empat fold LOSO, sehingga setiap signer uji berbobot sama meskipun jumlah videonya berbeda. Skor ini bukan akurasi dari gabungan seluruh prediksi uji.
+- **Rata-rata dan SD:** dihitung dari tiga skor seed (SD sampel).
+- **SD menunjukkan variasi antar-pengulangan.** Karena seed juga mengubah pembagian validasi internal, variasi ini tidak hanya berasal dari inisialisasi model. SD bukan variasi antar-signer, interval kepercayaan, atau bukti signifikansi.
+- **F1 tertimbang:** dihitung per fold dengan bobot jumlah contoh tiap kelas, lalu dirata-ratakan antar-fold.
+- **Main effect:** rata-rata selisih skor saat suatu faktor aktif dibandingkan nonaktif, pada semua kombinasi faktor lain. Nilainya tidak bisa dijumlahkan untuk memprediksi kenaikan E0 → E7 karena faktor dapat berinteraksi.
 
-SD menggambarkan variasi antar-pengulangan. Seed juga mengubah pembagian validasi internal, sehingga variasi ini tidak hanya berasal dari inisialisasi model. SD bukan ukuran variasi antar-signer, interval kepercayaan, atau bukti signifikansi statistik.
+## Yang didukung hasil
 
-Peningkatan E7 terhadap E0 sebesar 34,58 poin persentase menggunakan baseline internal dengan protokol yang sama. Nilai ini tidak menyatakan keunggulan terhadap metode pada publikasi lain.
+- Pada arsitektur dan protokol yang diuji, menggabungkan ketiga teknik (E7) memberikan akurasi rata-rata tertinggi di antara E0–E7.
+- Normalisasi spasial memberikan main effect terbesar.
+- Kenaikan E7 terhadap E0 (34,58 poin persentase) dihitung terhadap baseline internal dengan protokol yang sama.
+- Performa sangat berbeda antar-signer; signer 3 paling rendah dan paling bervariasi.
 
-Main effect adalah rata-rata selisih skor ketika suatu faktor aktif dan nonaktif pada kombinasi faktor lain. Nilai main effect tidak dapat dijumlahkan langsung untuk memprediksi peningkatan E0 ke E7 karena perlakuan dapat berinteraksi.
+## Yang belum dibuktikan
 
-## Ruang lingkup kesimpulan
+**Generalisasi**
+- Hasil belum diuji pada pengguna BISINDO lain, isyarat kontinu, varian regional, kondisi kamera baru, atau dataset lain.
+- Hanya ada empat signer uji, dan semua konfigurasi dibandingkan pada signer yang sama. E7 dipilih dari perbandingan tersebut; belum ada set uji eksternal untuk mengonfirmasinya.
+- Belum ada uji signifikansi statistik antar-konfigurasi. Selisih yang kecil, seperti E6 dan E7, perlu dibaca hati-hati.
 
-Normalisasi spasial memberikan main effect terbesar pada arsitektur dan protokol WL-BISINDO yang diuji. Hasil belum mencakup semua pengguna BISINDO, isyarat kontinu, varian regional lain, kondisi kamera baru, maupun dataset lain.
+**Perbandingan dengan penelitian lain**
+- Angka ini tidak menyatakan keunggulan atas metode di publikasi lain, termasuk baseline pada paper dataset, karena protokolnya berbeda.
 
-Delapan konfigurasi dibandingkan pada empat signer uji yang sama. E7 dipilih berdasarkan hasil perbandingan tersebut; belum ada set uji eksternal independen untuk mengonfirmasi pilihan ini. Hand-anchor dan CLAHE merupakan pengujian eksploratif setelah analisis kesalahan, sehingga bukan validasi independen atas konfigurasi terpilih.
+**Penyebab performa signer 3**
+- Belum ada satu penjelasan kausal yang terbukti. Jumlah keypoint hilang saja tidak cukup menjelaskannya. Kualitas ekstraksi, karakteristik gerakan, dan representasi pose perlu diperiksa bersama.
+- Hasil ini tidak menunjukkan bahwa dataset keliru.
 
-Performa signer 3 yang lebih rendah belum memiliki satu penjelasan kausal yang terbukti. Jumlah keypoint hilang saja belum cukup menjelaskannya. Kualitas ekstraksi, karakteristik gerakan, dan representasi pose perlu diperiksa bersama; hasil ini tidak membuktikan bahwa dataset keliru.
+**Aspek sistem**
+- Belum ada pengukuran waktu inferensi, FPS, atau FLOPs. Yang tersedia hanya jumlah parameter model.
+- Penelitian ini tidak membangun aplikasi atau prototipe real-time.
+- Input hanya pose 2D dari video RGB; data kedalaman (RGB-D) tidak digunakan.
 
 ## Reproduksi
 
-Notebook menyediakan konfigurasi lokasi input dan output untuk pengguna. Pelatihan penuh belum dijalankan ulang pada versi notebook ini. Kebutuhan data, lingkungan, dan artefak yang belum tersedia dijelaskan dalam [panduan menjalankan](methods_and_reproduction.md).
+Notebook sudah bisa dikonfigurasi untuk folder milik pengguna, tetapi pelatihan penuh belum dijalankan ulang dengan versi ini. Kebutuhan data, lingkungan, dan artefak yang belum tersedia dijelaskan di [panduan menjalankan](methods_and_reproduction.md).

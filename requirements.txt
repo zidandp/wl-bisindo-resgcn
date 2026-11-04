@@ -1,5 +1,6 @@
-# Main dependencies for the submitted notebooks.
-# Exact runtime versions are recorded automatically to environment JSON files.
+# Main dependencies for the notebooks (versions not pinned).
+# The notebooks record the exact runtime versions to environment JSON files when run.
+# The environment records from the original thesis runs are not included.
 numpy
 pandas
 scipy
